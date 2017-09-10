@@ -35,25 +35,42 @@
 #include <plan_segment.hh>
 
 /// class can be instantiated.
-TEST(plan_segment, plan_segment_constructor_takes_uint64_double_double) {
-	EXPECT_NO_THROW(plan_segment_t plan_segment(0U, 0.0, 0.0));
+TEST(plan_segment,
+    plan_segment_constructor_takes_uint64_double_double) {
+  EXPECT_NO_THROW(plan_segment_t plan_segment(0U, 0.0, 0.0));
 }
 
 /// Fixture with example data for tests
 class plan_segment_fixture : public ::testing::Test {
 protected:
-	// Plan segment starts on day 0 with value 0.0 and is always 0.0
-	plan_segment_t ps000 = {0U,0.0,0.0};
+  // Plan segment starts on day 0 with value 0.0 and is always 0.0
+  plan_segment_t ps_0_0_0 = { 0U, 0.0, 0.0 };
 
-	// Plan segment starts on day 1 with value 1.0 and rises 0.5 per day
-	plan_segment_t ps11half = {1U, 1.0, 0.5};
+  // Plan segment starts on day 1 with value 1.0 and rises 0.5 per day
+  plan_segment_t ps_1_1_half = { 1U, 1.0, 0.5 };
 
-	// Plan segment starts on day 2 with value 0.5 and sinks 0.1 per day
-	plan_segment_t ps2halfmtenth = {2U, 0.5, -0.1};
+  // Plan segment starts on day 2 with value 0.5 and sinks 0.1 per day
+  plan_segment_t ps_2_half_mtenth = { 2U, 0.5, -0.1 };
 };
 
-TEST_F(plan_segment_fixture, plan_segment_returns_start_value_on_first_day) {
-	EXPECT_EQ(0.0, ps000(0U));
-	EXPECT_EQ(1.0, ps11half(1U));
-	EXPECT_EQ(0.5, ps2halfmtenth(2U));
+TEST_F(plan_segment_fixture,
+    plan_segment_returns_start_value_on_first_day) {
+  EXPECT_EQ(0.0, ps_0_0_0(0U));
+  EXPECT_EQ(1.0, ps_1_1_half(1U));
+  EXPECT_EQ(0.5, ps_2_half_mtenth(2U));
+}
+
+TEST_F(plan_segment_fixture,
+    plan_segment_returns_start_value_plug_increment_for_later_day) {
+  // test one day (1) after this plan starts (0)
+  EXPECT_EQ(0.0, ps_0_0_0(1U));
+  // test three days (4) after this plan starts (1)
+  EXPECT_EQ(2.5, ps_1_1_half(4U));
+  // test two days (4) after this plan starts (2)
+  EXPECT_EQ(0.3, ps_2_half_mtenth(4U));
+}
+
+TEST_F(plan_segment_fixture,
+    plan_segment_throws_exception_if_time_is_before_start) {
+  EXPECT_THROW(ps_1_1_half(0U), std::underflow_error);
 }

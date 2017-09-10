@@ -32,13 +32,29 @@
  */
 
 #include <plan_segment.hh>
+#include <stdexcept>
 
-plan_segment_t::plan_segment_t(uint64_t start_time, double start_value, double)
+plan_segment_t::plan_segment_t(
+    uint64_t start_time,
+    double start_value,
+    double growth_rate)
 : start_time(start_time)
 , start_value(start_value)
-{
+, growth_rate(growth_rate)
+{}
+
+double plan_segment_t::operator()(uint64_t time) const {
+  if (time < start_time) {
+    std::string error_message =
+        to_string() + "operator() called with too early time="
+        + std::to_string(time);
+    throw std::underflow_error(error_message);
+    }
+  uint64_t time_into_the_plan = time - start_time;
+  double value_difference = time_into_the_plan * growth_rate;
+  return start_value + value_difference;
 }
 
-double plan_segment_t::operator()(uint64_t) {
-  return start_value;
+std::string plan_segment_t::to_string() const {
+  return "";
 }

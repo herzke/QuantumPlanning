@@ -35,6 +35,7 @@
 #define PLAN_SEGMENT_HH_
 
 #include <cstdint>
+#include <string>
 
 /// A plan segment consists of an initial value, a start time, and a
 /// growth rate. From there, it prescribes linear growth of a value.
@@ -46,6 +47,9 @@ class plan_segment_t {
   /// The value of this plan segment on the day it starts
   double start_value;
 
+  /// The rate of value change per time unit
+  double growth_rate;
+
 public:
 
   /// The constructor initializes the data members.
@@ -54,13 +58,15 @@ public:
   ///                   has to be agreed on by the users of the class.
   /// @param start_value The initial value of this plan, i.e. valid at
   ///                   @c start_time
-  /// 
-  plan_segment_t(uint64_t start_time, double start_value, double);
+  /// @param growth_rate The rate of value change per time unit.
+  plan_segment_t(uint64_t start_time, double start_value, double growth_rate);
 
   /// Ask the plan_segment for a prescribed value.
   /// @param time  The time for which the plan value is asked.
   /// @return the prescribed value for the time parameter.
-  double operator()(uint64_t time);
+  double operator()(uint64_t time) const;
+
+  std::string to_string() const;
 };
 
 #endif /* PLAN_SEGMENT_HH_ */
